@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { AuthDto } from './dto';
 import { CreateUserEvent } from './events';
 
@@ -14,11 +15,13 @@ export class AuthService {
       new CreateUserEvent(dto.email, dto.password),
     );
   }
-  signin(dto: AuthDto) {
-    console.log('1312')
-    return this.authClient.emit(
-      'signin',
-      new CreateUserEvent(dto.email, dto.password),
+  async signin(dto: AuthDto) {
+    const returned = await firstValueFrom(
+      this.authClient.send(
+        'signin',
+        new CreateUserEvent(dto.email, dto.password),
+      ),
     );
+    console.log(returned);
   }
 }
