@@ -2,26 +2,29 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { AuthDto } from './dto';
-import { CreateUserEvent } from './events';
+import { CreateUserEvent, SignInEvent } from './events';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject('AUTHENTICATION') private readonly authClient: ClientProxy,
   ) {}
-  signup(dto: AuthDto) {
-    return this.authClient.emit(
-      'create_user',
-      new CreateUserEvent(dto.email, dto.password),
-    );
-  }
-  async signin(dto: AuthDto) {
-    const returned = await firstValueFrom(
-      this.authClient.send(
-        'signin',
-        new CreateUserEvent(dto.email, dto.password),
+  async signup(dto: AuthDto) {
+    return await firstValueFrom(
+      this.authClient.emit(
+        'create_user',
+        new CreateUserEvent(
+          dto.email,
+          dto.password,
+          dto?.firstname,
+          dto?.lastname,
+        ),
       ),
     );
-    console.log(returned);
+  }
+  signin(dto: AuthDto) {
+    return firstValueFrom(
+      this.authClient.send('signin', new SignInEvent(dto.email, dto.password)),
+    );
   }
 }
