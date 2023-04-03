@@ -1,16 +1,21 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthModule } from './auth/auth.module';
-import { CartModule } from './cart/cart.module';
+import { PostModule } from './post/post.module';
+import { NestjsFormDataModule } from 'nestjs-form-data';
+import { S3ServiceModule } from './s3-service/s3-service.module';
+
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    S3ServiceModule,
+    NestjsFormDataModule,
     AuthModule,
-    CartModule,
+    PostModule,
+    S3ServiceModule,
   ],
 })
 export class AppModule {}

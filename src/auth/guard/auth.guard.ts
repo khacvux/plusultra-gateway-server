@@ -8,7 +8,7 @@ export class AuthGuard implements CanActivate {
     @Inject('AUTHENTICATION') private readonly authClient: ClientProxy,
   ) {}
   public async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest()
     return new Promise<boolean>((resolve) =>
       resolve(
         firstValueFrom(

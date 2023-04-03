@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthDto } from './dto';
 import { CreateUserEvent, SignInEvent } from './events';
 
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -22,8 +23,8 @@ export class AuthService {
       ),
     );
   }
-  signin(dto: AuthDto) {
-    return firstValueFrom(
+  async signin(dto: AuthDto) {
+    return await firstValueFrom(
       this.authClient.send('signin', new SignInEvent(dto.email, dto.password)),
     );
   }
