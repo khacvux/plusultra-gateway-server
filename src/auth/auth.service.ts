@@ -4,11 +4,11 @@ import { firstValueFrom } from 'rxjs';
 import { AuthDto } from './dto';
 import { CreateUserEvent, SignInEvent } from './events';
 
-
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject('AUTHENTICATION') private readonly authClient: ClientProxy,
+    @Inject(process.env.AUTHENTICATION_SERVICE)
+    private readonly authClient: ClientProxy,
   ) {}
   async signup(dto: AuthDto) {
     return await firstValueFrom(

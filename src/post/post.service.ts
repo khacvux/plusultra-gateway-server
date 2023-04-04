@@ -3,9 +3,6 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom, retry } from 'rxjs';
 import { S3InstanceService } from 'src/s3-service/s3-service.service';
 import IMedia from 'src/s3-service/types/media.type';
-
-// import { S3InstanceService } from 'src/s3-service/s3-service.service';
-
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { DeleteMediaFileEvent, UpdatePostEvent } from './events';
@@ -21,8 +18,9 @@ import {
 @Injectable()
 export class PostService {
   constructor(
-    @Inject('POST') private readonly postClient: ClientProxy,
-    @Inject('AUTHENTICATION') private readonly authClient: ClientProxy,
+    @Inject(process.env.POST_SERVICE) private readonly postClient: ClientProxy,
+    @Inject(process.env.AUTHENTICATION_SERVICE)
+    private readonly authClient: ClientProxy,
     private s3Instance: S3InstanceService,
   ) {}
 

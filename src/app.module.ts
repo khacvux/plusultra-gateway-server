@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 import { S3ServiceModule } from './s3-service/s3-service.module';
+import { PostEngagementModule } from './post-engagement/post-engagement.module';
 
 
 @Module({
@@ -16,6 +17,7 @@ import { S3ServiceModule } from './s3-service/s3-service.module';
     AuthModule,
     PostModule,
     S3ServiceModule,
+    PostEngagementModule,
   ],
 })
 export class AppModule {}

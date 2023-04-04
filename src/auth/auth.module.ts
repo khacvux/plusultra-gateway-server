@@ -4,15 +4,14 @@ import { AuthController } from './auth.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JwtModule } from '@nestjs/jwt';
 
-
 @Module({
   imports: [
     JwtModule.register({}),
     ClientsModule.register([
       {
-        name: 'AUTHENTICATION',
+        name: process.env.AUTHENTICATION_SERVICE,
         transport: Transport.TCP,
-        options: { port: 3001 },
+        options: { port: +process.env.AUTHENTICATION_SERVICE_PORT },
       },
     ]),
   ],
