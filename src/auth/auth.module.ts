@@ -9,9 +9,9 @@ import { JwtModule } from '@nestjs/jwt';
     JwtModule.register({}),
     ClientsModule.register([
       {
-        name: process.env.AUTHENTICATION_SERVICE,
+        name: "AUTHENTICATION",
         transport: Transport.TCP,
-        options: { port: +process.env.AUTHENTICATION_SERVICE_PORT },
+        options: { port: 3001 },
       },
     ]),
   ],

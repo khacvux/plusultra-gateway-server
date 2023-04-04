@@ -7,7 +7,7 @@ import { CreateUserEvent, SignInEvent } from './events';
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(process.env.AUTHENTICATION_SERVICE)
+    @Inject('AUTHENTICATION')
     private readonly authClient: ClientProxy,
   ) {}
   async signup(dto: AuthDto) {

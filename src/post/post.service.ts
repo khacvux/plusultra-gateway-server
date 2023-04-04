@@ -18,8 +18,8 @@ import {
 @Injectable()
 export class PostService {
   constructor(
-    @Inject(process.env.POST_SERVICE) private readonly postClient: ClientProxy,
-    @Inject(process.env.AUTHENTICATION_SERVICE)
+    @Inject("POST") private readonly postClient: ClientProxy,
+    @Inject("AUTHENTICATION")
     private readonly authClient: ClientProxy,
     private s3Instance: S3InstanceService,
   ) {}

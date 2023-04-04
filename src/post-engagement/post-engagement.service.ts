@@ -6,7 +6,7 @@ import { UpdatePostEngagementDto } from './dto/update-post-engagement.dto';
 @Injectable()
 export class PostEngagementService {
   constructor(
-    @Inject(process.env.POST_ENGAGEMENT_SERVICE)
+    @Inject("POST_ENGAGEMENT")
     private readonly postEngagementClient: ClientProxy,
   ) {}
 

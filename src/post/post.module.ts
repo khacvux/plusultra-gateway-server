@@ -12,14 +12,14 @@ import { S3ServiceModule } from 'src/s3-service/s3-service.module';
     S3ServiceModule,
     ClientsModule.register([
       {
-        name: process.env.POST_SERVICE,
+        name: "POST",
         transport: Transport.TCP,
-        options: { port: +process.env.POST_SERVICE_PORT },
+        options: { port: 3002 },
       },
       {
-        name: process.env.AUTHENTICATION_SERVICE,
+        name: "AUTHENTICATION",
         transport: Transport.TCP,
-        options: { port: +process.env.AUTHENTICATION_SERVICE_PORT },
+        options: { port: 3001 },
       },
     ]),
   ],

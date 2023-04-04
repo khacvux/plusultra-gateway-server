@@ -7,9 +7,9 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   imports: [
     ClientsModule.register([
       {
-        name: process.env.POST_ENGAGEMENT_SERVICE,
+        name: "POST_ENGAGEMENT",
         transport: Transport.TCP,
-        options: { port: +process.env.POST_ENGAGEMENT_SERVICE_PORT },
+        options: { port: 3003 },
       },
     ]),
   ],
