@@ -9,13 +9,20 @@ import IMedia from 'src/s3-service/types/media.type';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { DeleteMediaFileEvent, UpdatePostEvent } from './events';
+import { OwnerCheckEvent } from './events/check-owner.event';
 import { CreatePostEvent } from './events/create-post.event';
-import { DeleteMediaFailException } from './exceptions';
+import { DeletePostEvent } from './events/delete-post.event';
+import {
+  DeleteMediaFailException,
+  DeletePostFailException,
+  PermissionException,
+} from './exceptions';
 
 @Injectable()
 export class PostService {
   constructor(
     @Inject('POST') private readonly postClient: ClientProxy,
+    @Inject('AUTHENTICATION') private readonly authClient: ClientProxy,
     private s3Instance: S3InstanceService,
   ) {}
 
@@ -47,7 +54,8 @@ export class PostService {
     return await firstValueFrom(this.postClient.send('find_post', id));
   }
 
-  async update(id: number, updatePostDto: UpdatePostDto) {
+  async update(id: number, updatePostDto: UpdatePostDto, userId: number) {
+    await this.OwnerCheck(id, userId);
     return await firstValueFrom(
       this.postClient.send(
         'update_post_caption',
@@ -56,7 +64,8 @@ export class PostService {
     );
   }
 
-  async deleteMedia(userId: number, fileKey: string) {
+  async deleteMedia(userId: number, postId: number, fileKey: string) {
+    await this.OwnerCheck(postId, userId);
     try {
       await this.s3Instance.deleteFile(fileKey);
       return await firstValueFrom(
@@ -70,7 +79,27 @@ export class PostService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: number, userId: number) {
+    await this.OwnerCheck(id, userId);
+    try {
+      return await firstValueFrom(
+        this.postClient.send('delete_post', new DeletePostEvent(id)),
+      );
+    } catch {
+      throw new DeletePostFailException();
+    }
+  }
+
+  async OwnerCheck(postId: number, userId: number) {
+    try {
+      await firstValueFrom(
+        this.authClient.send(
+          'owner_check',
+          new OwnerCheckEvent(postId, userId),
+        ),
+      );
+    } catch {
+      throw new PermissionException();
+    }
   }
 }
