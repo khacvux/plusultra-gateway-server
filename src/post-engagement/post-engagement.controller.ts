@@ -1,30 +1,42 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { CommentPostDto } from './dto/comment-post';
 import { PostEngagementService } from './post-engagement.service';
-import { CreatePostEngagementDto } from './dto/create-post-engagement.dto';
-import { UpdatePostEngagementDto } from './dto/update-post-engagement.dto';
+import { IResLikePost } from './response-types';
 
 @Controller('post-engagement')
 export class PostEngagementController {
   constructor(private readonly postEngagementService: PostEngagementService) {}
 
-  @Post()
-  create(@Body() createPostEngagementDto: CreatePostEngagementDto) {
-    return this.postEngagementService.create(createPostEngagementDto);
+  @Post(':id/like')
+  create(
+    @Param('id', ParseIntPipe) postId: number,
+    @GetUser() userId: number,
+  ): IResLikePost {
+    return this.postEngagementService.like({ postId, userId });
   }
 
-  @Get()
-  findAll() {
-    return this.postEngagementService.findAll();
+  @Post(':id/comment')
+  findAll(
+    @Body() dto: CommentPostDto,
+    @Param('id', ParseIntPipe) postId: number,
+    @GetUser() userId: number,
+  ) {
+    return this.postEngagementService.comment(dto, postId, userId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postEngagementService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostEngagementDto: UpdatePostEngagementDto) {
-    return this.postEngagementService.update(+id, updatePostEngagementDto);
   }
 
   @Delete(':id')

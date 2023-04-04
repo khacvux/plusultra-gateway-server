@@ -1,17 +1,35 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreatePostEngagementDto } from './dto/create-post-engagement.dto';
-import { UpdatePostEngagementDto } from './dto/update-post-engagement.dto';
+import { firstValueFrom } from 'rxjs';
+import { LikePostDto } from './dto';
+import { CommentPostDto } from './dto/comment-post';
+import { LikePostEvent } from './events';
+import { CommentPostEvent } from './events/comment-post.event';
+import { IResLikePost } from './response-types';
 
 @Injectable()
 export class PostEngagementService {
   constructor(
-    @Inject("POST_ENGAGEMENT")
+    @Inject('POST_ENGAGEMENT')
     private readonly postEngagementClient: ClientProxy,
   ) {}
 
-  create(createPostEngagementDto: CreatePostEngagementDto) {
-    return 'This action adds a new postEngagement';
+  async like(payload: LikePostDto): Promise<IResLikePost> {
+    return await firstValueFrom(
+      this.postEngagementClient.send(
+        'like_post',
+        new LikePostEvent(payload.userId, payload.postId),
+      ),
+    );
+  }
+
+  async comment(payload: CommentPostDto, userId: number, postId: number) {
+    return await firstValueFrom(
+      this.postEngagementClient.send(
+        'comment_post',
+        new CommentPostEvent(payload.comment, userId, postId),
+      ),
+    );
   }
 
   findAll() {
@@ -20,10 +38,6 @@ export class PostEngagementService {
 
   findOne(id: number) {
     return `This action returns a #${id} postEngagement`;
-  }
-
-  update(id: number, updatePostEngagementDto: UpdatePostEngagementDto) {
-    return `This action updates a #${id} postEngagement`;
   }
 
   remove(id: number) {
