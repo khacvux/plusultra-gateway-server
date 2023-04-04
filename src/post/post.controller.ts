@@ -8,19 +8,15 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
   UploadedFiles,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AuthGuard } from '../auth/guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { FileSystemStoredFile, FormDataRequest } from 'nestjs-form-data';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(AuthGuard)
 @Controller('post')
@@ -40,22 +36,30 @@ export class PostController {
     return this.postService.create(dto, files, userId);
   }
 
-  @Get()
-  findAll() {
-    return this.postService.findAll();
+  @Get('/user/:uid')
+  findAllPostOfuser(@Param('uid', ParseIntPipe) userId: number) {
+    return this.postService.findAllPostOfUser(userId);
+  }
+
+  @Delete('media/:mid/delete')
+  update(@Param('mid') mid: string, @GetUser() userId: number) {
+    return this.postService.deleteMedia(userId, mid);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postService.findOne(+id);
+  findPost(@Param('id', ParseIntPipe) id: number) {
+    return this.postService.findPost(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  @Post(':id/update')
+  updatePostCaption(
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
     return this.postService.update(+id, updatePostDto);
   }
 
-  @Delete(':id')
+  @Delete(':id/delete')
   remove(@Param('id') id: string) {
     return this.postService.remove(+id);
   }

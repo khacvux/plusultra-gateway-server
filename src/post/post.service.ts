@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, retry } from 'rxjs';
 import { S3InstanceService } from 'src/s3-service/s3-service.service';
 import IMedia from 'src/s3-service/types/media.type';
 
@@ -8,7 +8,9 @@ import IMedia from 'src/s3-service/types/media.type';
 
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { DeleteMediaFileEvent, UpdatePostEvent } from './events';
 import { CreatePostEvent } from './events/create-post.event';
+import { DeleteMediaFailException } from './exceptions';
 
 @Injectable()
 export class PostService {
@@ -35,16 +37,37 @@ export class PostService {
     );
   }
 
-  findAll() {
-    return `This action returns all post`;
+  async findAllPostOfUser(userId: number) {
+    return await firstValueFrom(
+      this.postClient.send('all_post_of_user', userId),
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findPost(id: number) {
+    return await firstValueFrom(this.postClient.send('find_post', id));
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: number, updatePostDto: UpdatePostDto) {
+    return await firstValueFrom(
+      this.postClient.send(
+        'update_post_caption',
+        new UpdatePostEvent(updatePostDto.caption, id),
+      ),
+    );
+  }
+
+  async deleteMedia(userId: number, fileKey: string) {
+    try {
+      await this.s3Instance.deleteFile(fileKey);
+      return await firstValueFrom(
+        this.postClient.send(
+          'delete_media_file',
+          new DeleteMediaFileEvent(fileKey),
+        ),
+      );
+    } catch {
+      throw new DeleteMediaFailException();
+    }
   }
 
   remove(id: number) {

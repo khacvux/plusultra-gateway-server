@@ -4,6 +4,6 @@ export class CreatePostEvent {
   constructor(
     public readonly caption: string,
     public readonly authorId: number,
-    public readonly mediaUrl: IMedia[] | any,
+    public readonly mediaFiles: IMedia[] | any,
   ) {}
 }

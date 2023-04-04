@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3 } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommandInput,
+  PutObjectCommandInput,
+  PutObjectCommandInputType,
+  S3,
+} from '@aws-sdk/client-s3';
 import IMedia from './types/media.type';
+import { ok } from 'assert';
 
 @Injectable()
 export class S3InstanceService {
@@ -20,37 +26,43 @@ export class S3InstanceService {
     },
   });
 
-  async uploadFile(file) {
-    return await this.s3_upload(
-      file.buffer,
-      this.AWS_S3_BUCKET,
-      file.originalname,
-      file.mimetype,
-    );
+  async uploadFile(file: Express.Multer.File | any) {
+    const keyFile = `${Date.now()}${String(file.originalname)}`;
+
+    return await this.s3UploadObject({
+      Bucket: this.AWS_S3_BUCKET,
+      Key: keyFile,
+      Body: file.buffer,
+      ACL: 'public-read',
+      ContentType: file.minetype,
+    });
   }
 
-  async s3_upload(
-    file: File,
-    bucket: string,
-    name: string,
-    mimetype: string,
-  ): Promise<IMedia> {
-    const keyFile = `${Date.now()}${String(name)}`;
-    const params = {
-      Bucket: bucket,
-      Key: keyFile,
-      Body: file,
-      ACL: 'public-read',
-      ContentType: mimetype,
-    };
+  async deleteFile(fileKey: string) {
+    return await this.s3DeleteObject({
+      Bucket: this.AWS_S3_BUCKET,
+      Key: fileKey,
+    });
+  }
+
+  async s3UploadObject(params: PutObjectCommandInput): Promise<IMedia> {
     try {
       await this.s3Instance.putObject(params);
       return {
-        keyFile,
-        mediaUrl: `https://${bucket}.s3.${this.AWS_S3_REGION}.amazonaws.com/${keyFile}`,
+        keyFile: params.Key,
+        mediaUrl: `https://${params.Bucket}.s3.${this.AWS_S3_REGION}.amazonaws.com/${params.Key}`,
       };
     } catch (error) {
       throw new Error('Image not saved in s3!');
+    }
+  }
+
+  async s3DeleteObject(params: DeleteObjectCommandInput) {
+    try {
+      await this.s3Instance.deleteObject(params);
+      return { message: 'deleted' };
+    } catch (error) {
+      throw new Error('Image has not been deleted in s3!');
     }
   }
 
