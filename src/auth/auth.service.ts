@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { AuthDto } from './dto';
-import { CreateUserEvent, SignInEvent } from './events';
+import { AuthDto, RefreshTokenDto } from './dto';
+import { CreateUserEvent, RefreshTokenEvent, SignInEvent } from './events';
 
 @Injectable()
 export class AuthService {
@@ -28,4 +28,21 @@ export class AuthService {
       this.authClient.send('signin', new SignInEvent(dto.email, dto.password)),
     );
   }
+
+  async refresh(dto: RefreshTokenDto, userId: number) {
+    return await firstValueFrom(
+      this.authClient.send(
+        'refresh-token',
+        new RefreshTokenEvent(dto.refreshToken, userId),
+      ),
+    );
+  }
+
+  // async signout() {
+  //   return await firstValueFrom(
+  //     this.authClient.send(
+  //       ''
+  //     )
+  //   )
+  // }
 }
