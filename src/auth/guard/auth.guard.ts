@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UnauthorizedException } from '../exceptions';
 
 export class AuthGuard implements CanActivate {

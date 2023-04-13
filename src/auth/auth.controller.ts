@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto, RefreshTokenDto } from './dto';
@@ -33,6 +34,9 @@ export class AuthController {
     return this.authService.refresh(dto, userId);
   }
 
-  @Get('/signout')
-  signout() {}
+  @UseGuards(AuthGuard)
+  @Delete('/signout')
+  signout(@GetUser() userId: number) {
+    return this.authService.signout(userId);
+  }
 }

@@ -18,6 +18,7 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Role } from 'src/auth/types';
 
+
 @UseGuards(AuthGuard)
 @Controller('post')
 export class PostController {

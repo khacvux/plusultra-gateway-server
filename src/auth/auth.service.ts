@@ -2,7 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { AuthDto, RefreshTokenDto } from './dto';
-import { CreateUserEvent, RefreshTokenEvent, SignInEvent } from './events';
+import {
+  CreateUserEvent,
+  RefreshTokenEvent,
+  SignInEvent,
+  SignOutEvent,
+} from './events';
 
 @Injectable()
 export class AuthService {
@@ -32,17 +37,15 @@ export class AuthService {
   async refresh(dto: RefreshTokenDto, userId: number) {
     return await firstValueFrom(
       this.authClient.send(
-        'refresh-token',
+        'refresh_token',
         new RefreshTokenEvent(dto.refreshToken, userId),
       ),
     );
   }
 
-  // async signout() {
-  //   return await firstValueFrom(
-  //     this.authClient.send(
-  //       ''
-  //     )
-  //   )
-  // }
+  async signout(userId: number) {
+    return await firstValueFrom(
+      this.authClient.send('sign_out', new SignOutEvent(userId)),
+    );
+  }
 }
