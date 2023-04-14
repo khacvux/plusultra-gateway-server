@@ -7,40 +7,72 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
+  Put,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { CommentPostDto } from './dto/comment-post';
 import { PostEngagementService } from './post-engagement.service';
 import { IResLikePost } from './response-types';
+import { AuthGuard } from '../auth/guard';
+import { UpdateCommentDto } from './dto';
 
-@Controller('post-engagement')
+@UseGuards(AuthGuard)
+@Controller('react-post')
 export class PostEngagementController {
   constructor(private readonly postEngagementService: PostEngagementService) {}
 
-  @Post(':id/like')
+  @HttpCode(HttpStatus.OK)
+  @Delete('comment/:id/delele')
+  deleteComment(
+    @Param('id', ParseIntPipe) commentId: number,
+    @GetUser() userId: number,
+  ) {
+    return this.postEngagementService.deleteComment(commentId, userId);
+  }
+
+  @Put('comment/:id/update')
+  updateComment(
+    @Param('id', ParseIntPipe) commentId: number,
+    @GetUser() userId: number,
+    @Body() dto: UpdateCommentDto,
+  ) {
+    return this.postEngagementService.updateComment(
+      commentId,
+      userId,
+      dto.newComment,
+    );
+  }
+
+  @Get('comment/:id/likes')
+  likesOfComment(@Param('id', ParseIntPipe) commentId: number) {
+    return this.postEngagementService.getCommentLikes(commentId);
+  }
+
+  @Patch('comment/:id/like')
+  likeComment(
+    @Param('id', ParseIntPipe) commentId: number,
+    @GetUser() userId: number,
+  ) {
+    return this.postEngagementService.likeComment(commentId, userId);
+  }
+
+  @Patch(':id/like')
   create(
     @Param('id', ParseIntPipe) postId: number,
     @GetUser() userId: number,
   ): IResLikePost {
-    return this.postEngagementService.like({ postId, userId });
+    return this.postEngagementService.likePost({ postId, userId });
   }
 
   @Post(':id/comment')
-  findAll(
+  createComment(
     @Body() dto: CommentPostDto,
     @Param('id', ParseIntPipe) postId: number,
     @GetUser() userId: number,
   ) {
     return this.postEngagementService.comment(dto, postId, userId);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postEngagementService.findOne(+id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postEngagementService.remove(+id);
   }
 }

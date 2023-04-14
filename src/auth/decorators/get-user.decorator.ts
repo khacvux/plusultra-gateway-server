@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  createParamDecorator,
-  ExecutionContext,
-  Inject,
-} from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 const jwt = new JwtService();
 export const GetUser = createParamDecorator(

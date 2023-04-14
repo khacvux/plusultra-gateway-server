@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
   async signup(dto: AuthDto) {
     return await firstValueFrom(
-      this.authClient.emit(
+      this.authClient.send(
         'create_user',
         new CreateUserEvent(
           dto.email,

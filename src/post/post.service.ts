@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom, retry } from 'rxjs';
-import { S3InstanceService } from 'src/s3-service/s3-service.service';
+// import { S3InstanceService } from 'src/s3-service/s3-service.service';
 import IMedia from 'src/s3-service/types/media.type';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -14,26 +14,33 @@ import {
   DeletePostFailException,
   PermissionException,
 } from './exceptions';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class PostService {
   constructor(
-    @Inject("POST") private readonly postClient: ClientProxy,
-    @Inject("AUTHENTICATION")
+    @Inject('POST') private readonly postClient: ClientProxy,
+    @Inject('AUTHENTICATION')
     private readonly authClient: ClientProxy,
-    private s3Instance: S3InstanceService,
+    // private s3Instance: S3InstanceService,
+    private cloudinary: CloudinaryService,
   ) {}
 
   async create(
     dto: CreatePostDto,
-    files: { mediaFile?: Express.Multer.File[] },
     userId: number,
+    files?: { mediaFile?: Express.Multer.File[] },
   ) {
-    const mediaFiles: IMedia[] = await Promise.all(
-      files.mediaFile.map(async (file) => {
-        return await this.s3Instance.uploadFile(file);
-      }),
-    );
+    let mediaFiles: IMedia[];
+    if (files.mediaFile.length) {
+      mediaFiles = await Promise.all(
+        files.mediaFile.map(async (file) => {
+          // return await this.s3Instance.uploadFile(file);
+          return this.cloudinary.uploadImage(file);
+        }),
+      );
+    }
+
     return await firstValueFrom(
       this.postClient.send(
         'create_post',
@@ -52,8 +59,13 @@ export class PostService {
     return await firstValueFrom(this.postClient.send('find_post', id));
   }
 
+  async postComments(postId: number) {
+    return await firstValueFrom(this.postClient.send('post_comments', postId));
+  }
+
   async update(id: number, updatePostDto: UpdatePostDto, userId: number) {
-    await this.OwnerCheck(id, userId);
+    const permission = await this._ownerCheck(id, userId);
+    if (!permission) throw new PermissionException();
     return await firstValueFrom(
       this.postClient.send(
         'update_post_caption',
@@ -63,9 +75,11 @@ export class PostService {
   }
 
   async deleteMedia(userId: number, postId: number, fileKey: string) {
-    await this.OwnerCheck(postId, userId);
+    const permission = await this._ownerCheck(postId, userId);
+    if (!permission) throw new PermissionException();
     try {
-      await this.s3Instance.deleteFile(fileKey);
+      // await this.s3Instance.deleteFile(fileKey);
+      await this.cloudinary.removeImage(fileKey);
       return await firstValueFrom(
         this.postClient.send(
           'delete_media_file',
@@ -78,7 +92,8 @@ export class PostService {
   }
 
   async remove(id: number, userId: number) {
-    await this.OwnerCheck(id, userId);
+    const permission = await this._ownerCheck(id, userId);
+    if (!permission) throw new PermissionException();
     try {
       return await firstValueFrom(
         this.postClient.send('delete_post', new DeletePostEvent(id)),
@@ -88,9 +103,9 @@ export class PostService {
     }
   }
 
-  async OwnerCheck(postId: number, userId: number) {
+  async _ownerCheck(postId: number, userId: number) {
     try {
-      await firstValueFrom(
+      return await firstValueFrom(
         this.authClient.send(
           'owner_check',
           new OwnerCheckEvent(postId, userId),

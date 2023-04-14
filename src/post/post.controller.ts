@@ -9,15 +9,14 @@ import {
   UseInterceptors,
   UploadedFiles,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { AuthGuard, Permission } from '../auth/guard';
+import { AuthGuard } from '../auth/guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { Role } from 'src/auth/types';
-
 
 @UseGuards(AuthGuard)
 @Controller('post')
@@ -34,7 +33,7 @@ export class PostController {
     @Body() dto: CreatePostDto,
     @GetUser() userId: number,
   ) {
-    return this.postService.create(dto, files, userId);
+    return this.postService.create(dto, userId, files);
   }
 
   @Get('/user/:uid')
@@ -47,7 +46,12 @@ export class PostController {
     return this.postService.findPost(id);
   }
 
-  @Post(':id/update')
+  @Get('/:id/comments')
+  postComments(@Param('id', ParseIntPipe) postId: number) {
+    return this.postService.postComments(postId);
+  }
+
+  @Patch(':id/update')
   updatePostCaption(
     @Param('id') id: string,
     @Body() updatePostDto: UpdatePostDto,

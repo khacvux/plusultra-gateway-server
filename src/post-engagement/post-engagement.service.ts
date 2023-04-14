@@ -1,20 +1,30 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
-import { LikePostDto } from './dto';
+import { first, firstValueFrom } from 'rxjs';
+import { LikePostDto, UpdateCommentDto } from './dto';
 import { CommentPostDto } from './dto/comment-post';
-import { LikePostEvent } from './events';
-import { CommentPostEvent } from './events/comment-post.event';
+import {
+  DeleteCommentEvent,
+  GetCommentLikesEvent,
+  LikeCommentEvent,
+  LikePostEvent,
+  UpdateCommentEvent,
+} from './events';
+import { CreateCommentEvent } from './events/create-comment.event';
 import { IResLikePost } from './response-types';
+import { OwnerCheckEvent } from 'src/post/events/check-owner.event';
+import { PermissionException } from 'src/post/exceptions';
 
 @Injectable()
 export class PostEngagementService {
   constructor(
     @Inject('POST_ENGAGEMENT')
     private readonly postEngagementClient: ClientProxy,
+    @Inject('AUTHENTICATION')
+    private readonly authClient: ClientProxy,
   ) {}
 
-  async like(payload: LikePostDto): Promise<IResLikePost> {
+  async likePost(payload: LikePostDto): Promise<IResLikePost> {
     return await firstValueFrom(
       this.postEngagementClient.send(
         'like_post',
@@ -26,21 +36,66 @@ export class PostEngagementService {
   async comment(payload: CommentPostDto, userId: number, postId: number) {
     return await firstValueFrom(
       this.postEngagementClient.send(
-        'comment_post',
-        new CommentPostEvent(payload.comment, userId, postId),
+        'create_comment',
+        new CreateCommentEvent(payload.comment, userId, postId),
       ),
     );
   }
 
-  findAll() {
-    return `This action returns all postEngagement`;
+  async deleteComment(commentId: number, userId: number) {
+    return await firstValueFrom(
+      this.postEngagementClient.send(
+        'delete_comment',
+        new DeleteCommentEvent(userId, commentId),
+      ),
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} postEngagement`;
+  async updateComment(commentId: number, userId: number, newComment: string) {
+    return await firstValueFrom(
+      this.postEngagementClient.send(
+        'update_comment',
+        new UpdateCommentEvent(userId, commentId, newComment),
+      ),
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} postEngagement`;
+  async likeComment(commentId: number, userId: number) {
+    try {
+      return await firstValueFrom(
+        this.postEngagementClient.send(
+          'like_comment',
+          new LikeCommentEvent(commentId, userId),
+        ),
+      );
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getCommentLikes(commentId: number) {
+    try {
+      return await firstValueFrom(
+        this.postEngagementClient.send(
+          'get_comment_likes',
+          new GetCommentLikesEvent(commentId),
+        ),
+      );
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async _ownerCheck(postId: number, userId: number) {
+    try {
+      return await firstValueFrom(
+        this.authClient.send(
+          'owner_check',
+          new OwnerCheckEvent(postId, userId),
+        ),
+      );
+    } catch {
+      throw new PermissionException();
+    }
   }
 }

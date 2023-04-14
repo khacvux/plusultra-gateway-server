@@ -1,4 +1,4 @@
-export class CommentPostEvent {
+export class CreateCommentEvent {
   constructor(
     public readonly comment: string,
     public readonly userId: number,

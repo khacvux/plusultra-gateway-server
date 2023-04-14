@@ -50,7 +50,7 @@ export class S3InstanceService {
       await this.s3Instance.putObject(params);
       return {
         keyFile: params.Key,
-        mediaUrl: `https://${params.Bucket}.s3.${this.AWS_S3_REGION}.amazonaws.com/${params.Key}`,
+        url: `https://${params.Bucket}.s3.${this.AWS_S3_REGION}.amazonaws.com/${params.Key}`,
       };
     } catch (error) {
       throw new Error('Image not saved in s3!');

@@ -1,1 +1,6 @@
 export * from './like-post.event'
+export * from './delete-comment'
+export * from './like-post.event'
+export * from './update-comment.event'
+export * from './like-comment.event'
+export * from './get-comment-likes.event'
