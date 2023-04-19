@@ -24,14 +24,14 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('/create')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'mediaFile', maxCount: 5 }]))
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'media', maxCount: 5 }]))
   create(
     @UploadedFiles()
     files: {
       mediaFile?: Express.Multer.File[];
     },
     @Body() dto: CreatePostDto,
-    @GetUser() userId: number,
+    @GetUser('sub') userId: number,
   ) {
     return this.postService.create(dto, userId, files);
   }
@@ -55,7 +55,7 @@ export class PostController {
   updatePostCaption(
     @Param('id') id: string,
     @Body() updatePostDto: UpdatePostDto,
-    @GetUser() userId: number,
+    @GetUser('sub') userId: number,
   ) {
     return this.postService.update(+id, updatePostDto, userId);
   }
@@ -64,13 +64,13 @@ export class PostController {
   deleteMedia(
     @Param('id', ParseIntPipe) id: number,
     @Param('mid') mid: string,
-    @GetUser() userId: number,
+    @GetUser('sub') userId: number,
   ) {
     return this.postService.deleteMedia(userId, id, mid);
   }
 
   @Delete(':id/delete')
-  remove(@Param('id', ParseIntPipe) id: number, @GetUser() userId: number) {
+  remove(@Param('id', ParseIntPipe) id: number, @GetUser('sub') userId: number) {
     return this.postService.remove(+id, userId);
   }
 }

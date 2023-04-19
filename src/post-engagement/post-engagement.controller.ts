@@ -28,7 +28,7 @@ export class PostEngagementController {
   @Delete('comment/:id/delele')
   deleteComment(
     @Param('id', ParseIntPipe) commentId: number,
-    @GetUser() userId: number,
+    @GetUser('sub') userId: number,
   ) {
     return this.postEngagementService.deleteComment(commentId, userId);
   }
@@ -36,7 +36,7 @@ export class PostEngagementController {
   @Put('comment/:id/update')
   updateComment(
     @Param('id', ParseIntPipe) commentId: number,
-    @GetUser() userId: number,
+    @GetUser('sub') userId: number,
     @Body() dto: UpdateCommentDto,
   ) {
     return this.postEngagementService.updateComment(
@@ -54,7 +54,7 @@ export class PostEngagementController {
   @Patch('comment/:id/like')
   likeComment(
     @Param('id', ParseIntPipe) commentId: number,
-    @GetUser() userId: number,
+    @GetUser('sub') userId: number,
   ) {
     return this.postEngagementService.likeComment(commentId, userId);
   }
@@ -62,7 +62,7 @@ export class PostEngagementController {
   @Patch(':id/like')
   create(
     @Param('id', ParseIntPipe) postId: number,
-    @GetUser() userId: number,
+    @GetUser('sub') userId: number,
   ): IResLikePost {
     return this.postEngagementService.likePost({ postId, userId });
   }
@@ -71,7 +71,7 @@ export class PostEngagementController {
   createComment(
     @Body() dto: CommentPostDto,
     @Param('id', ParseIntPipe) postId: number,
-    @GetUser() userId: number,
+    @GetUser('sub') userId: number,
   ) {
     return this.postEngagementService.comment(dto, postId, userId);
   }

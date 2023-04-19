@@ -4,6 +4,13 @@ const jwt = new JwtService();
 export const GetUser = createParamDecorator(
   (data: string | undefined, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    return jwt.decode(request.headers.authorization.slice(7)).sub;
+    const decoded: any = jwt.decode(request.headers.authorization.slice(7));
+    if (data) {
+      return decoded[data];
+    }
+    return {
+      userId: decoded.sub,
+      roleId: decoded.roleId,
+    };
   },
 );

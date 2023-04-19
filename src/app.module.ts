@@ -5,6 +5,8 @@ import { PostModule } from './post/post.module';
 import { S3ServiceModule } from './s3-service/s3-service.module';
 import { PostEngagementModule } from './post-engagement/post-engagement.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { EcommerceProductsModule } from './ecommerce-products/ecommerce-products.module';
+import { UserModule } from './user/user.module';
 
 
 @Module({
@@ -13,17 +15,12 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       isGlobal: true,
     }),
     S3ServiceModule,
+    CloudinaryModule,
     AuthModule,
     PostModule,
-    // S3ServiceModule,
     PostEngagementModule,
-    CloudinaryModule,
+    EcommerceProductsModule,
+    UserModule,
   ],
-  // providers: [
-  //   {
-  //     provide: APP_GUARD,
-  //     useClass: RoleGuard,
-  //   },
-  // ],
 })
 export class AppModule {}
