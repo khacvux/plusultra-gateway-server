@@ -6,7 +6,7 @@ import { S3ServiceModule } from './s3-service/s3-service.module';
 import { PostEngagementModule } from './post-engagement/post-engagement.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { EcommerceProductsModule } from './ecommerce-products/ecommerce-products.module';
-import { UserModule } from './user/user.module';
+import { UserAddressModule } from './user-address/user-address.module';
 
 
 @Module({
@@ -20,7 +20,7 @@ import { UserModule } from './user/user.module';
     PostModule,
     PostEngagementModule,
     EcommerceProductsModule,
-    UserModule,
+    UserAddressModule,
   ],
 })
 export class AppModule {}
