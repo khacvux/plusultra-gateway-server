@@ -7,6 +7,7 @@ import { PostEngagementModule } from './post-engagement/post-engagement.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { EcommerceProductsModule } from './ecommerce-products/ecommerce-products.module';
 import { UserAddressModule } from './user-address/user-address.module';
+import { EcommerceCartModule } from './ecommerce-cart/cart.module';
 
 
 @Module({
@@ -21,6 +22,7 @@ import { UserAddressModule } from './user-address/user-address.module';
     PostEngagementModule,
     EcommerceProductsModule,
     UserAddressModule,
+    EcommerceCartModule,
   ],
 })
 export class AppModule {}
