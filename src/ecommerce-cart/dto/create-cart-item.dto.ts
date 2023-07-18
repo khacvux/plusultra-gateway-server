@@ -8,4 +8,8 @@ export class CreateCartItemDto {
   @IsNumber()
   @IsNotEmpty()
   quantity: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  categoryId: number;
 }

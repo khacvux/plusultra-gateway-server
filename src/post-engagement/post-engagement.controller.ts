@@ -20,7 +20,7 @@ import { AuthGuard } from '../auth/guard';
 import { UpdateCommentDto } from './dto';
 
 @UseGuards(AuthGuard)
-@Controller('react-post')
+@Controller('api/post')
 export class PostEngagementController {
   constructor(private readonly postEngagementService: PostEngagementService) {}
 
@@ -60,7 +60,7 @@ export class PostEngagementController {
   }
 
   @Patch(':id/like')
-  create(
+  likePost(
     @Param('id', ParseIntPipe) postId: number,
     @GetUser('sub') userId: number,
   ): IResLikePost {
@@ -73,6 +73,6 @@ export class PostEngagementController {
     @Param('id', ParseIntPipe) postId: number,
     @GetUser('sub') userId: number,
   ) {
-    return this.postEngagementService.comment(dto, postId, userId);
+    return this.postEngagementService.comment(dto, userId, postId);
   }
 }

@@ -12,6 +12,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         options: { port: 3003 },
       },
       {
+        name: 'POST',
+        transport: Transport.TCP,
+        options: { port: 3002 },
+      },
+      {
         name: 'AUTHENTICATION',
         transport: Transport.TCP,
         options: { port: 3001 },

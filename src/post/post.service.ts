@@ -7,7 +7,10 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { DeleteMediaFileEvent, UpdatePostEvent } from './events';
 import { OwnerCheckEvent } from './events/check-owner.event';
-import { CreatePostEvent } from './events/create-post.event';
+import {
+  CreatePostEvent,
+  SavePostPhotosEvent,
+} from './events/create-post.event';
 import { DeletePostEvent } from './events/delete-post.event';
 import {
   DeleteMediaFailException,
@@ -26,10 +29,18 @@ export class PostService {
     private cloudinary: CloudinaryService,
   ) {}
 
-  async create(
-    dto: CreatePostDto,
-    userId: number,
-    files?: { mediaFile?: Express.Multer.File[] },
+  async create(dto: CreatePostDto, userId: number) {
+    return await firstValueFrom(
+      this.postClient.send(
+        'create_post',
+        new CreatePostEvent(dto.caption, userId),
+      ),
+    );
+  }
+
+  async uploadPhotos(
+    postId: number,
+    files: { mediaFile: Express.Multer.File[] },
   ) {
     let mediaFiles: IMedia[];
     if (files.mediaFile.length) {
@@ -40,18 +51,25 @@ export class PostService {
         }),
       );
     }
-
     return await firstValueFrom(
       this.postClient.send(
-        'create_post',
-        new CreatePostEvent(dto.caption, userId, mediaFiles),
+        'save_post_photos',
+        new SavePostPhotosEvent(postId, mediaFiles),
       ),
     );
   }
 
-  async findAllPostOfUser(userId: number) {
+  async findAllPostOfUser(
+    authorId: number,
+    userId: number,
+    pagination: number,
+  ) {
     return await firstValueFrom(
-      this.postClient.send('all_post_of_user', userId),
+      this.postClient.send('all_post_of_user', {
+        userId,
+        authorId,
+        pagination,
+      }),
     );
   }
 
@@ -59,8 +77,12 @@ export class PostService {
     return await firstValueFrom(this.postClient.send('find_post', id));
   }
 
-  async postComments(postId: number) {
-    return await firstValueFrom(this.postClient.send('post_comments', postId));
+  async postComments(payload: {
+    postId: number;
+    userId: number;
+    pagination: number;
+  }) {
+    return await firstValueFrom(this.postClient.send('post_comments', payload));
   }
 
   async update(id: number, updatePostDto: UpdatePostDto, userId: number) {

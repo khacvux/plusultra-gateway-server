@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateCartItemDto, UpdateCartItemDto } from './dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { first, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import {
   CreateCartItemEvent,
   DeleteCartItemEvent,
@@ -17,19 +17,22 @@ export class EcommerceCartService {
     return await firstValueFrom(
       this.cartClient.send(
         'create_cart_item',
-        new CreateCartItemEvent(userId, dto.productId, dto.quantity),
+        new CreateCartItemEvent(
+          userId,
+          dto.productId,
+          dto.quantity,
+          dto.categoryId,
+        ),
       ),
     );
   }
 
   async findAll(userId: number) {
-    return await firstValueFrom(this.cartClient.send('get_cart', { userId }));
+    return await firstValueFrom(this.cartClient.send('get_cart', userId));
   }
 
-  async findOne(id: number, userId: number) {
-    return await firstValueFrom(
-      this.cartClient.send('get_cart_item', new GetCartItemEvent(userId, id)),
-    );
+  async findOne(id: number) {
+    return await firstValueFrom(this.cartClient.send('get_cart_item', id));
   }
 
   async update(userId: number, cartItemId: number, dto: UpdateCartItemDto) {

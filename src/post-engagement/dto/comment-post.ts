@@ -4,7 +4,4 @@ export class CommentPostDto {
   @IsString()
   @IsNotEmpty()
   comment: string;
-
-  userId: number;
-  postId: number;
 }

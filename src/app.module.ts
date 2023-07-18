@@ -8,6 +8,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { EcommerceProductsModule } from './ecommerce-products/ecommerce-products.module';
 import { UserAddressModule } from './user-address/user-address.module';
 import { EcommerceCartModule } from './ecommerce-cart/cart.module';
+import { UserModule } from './user/user.module';
 
 
 @Module({
@@ -23,6 +24,7 @@ import { EcommerceCartModule } from './ecommerce-cart/cart.module';
     EcommerceProductsModule,
     UserAddressModule,
     EcommerceCartModule,
+    UserModule,
   ],
 })
 export class AppModule {}

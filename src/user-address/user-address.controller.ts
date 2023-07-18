@@ -15,7 +15,7 @@ import { AuthGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
 @UseGuards(AuthGuard)
-@Controller('user/address')
+@Controller('api/user/address')
 export class UserAddressController {
   constructor(private readonly service: UserAddressService) {}
 

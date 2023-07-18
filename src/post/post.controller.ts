@@ -10,6 +10,7 @@ import {
   UploadedFiles,
   ParseIntPipe,
   Patch,
+  Logger,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -19,26 +20,42 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(AuthGuard)
-@Controller('post')
+@Controller('api/post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('/create')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'media', maxCount: 5 }]))
-  create(
-    @UploadedFiles()
-    files: {
-      mediaFile?: Express.Multer.File[];
-    },
-    @Body() dto: CreatePostDto,
-    @GetUser('sub') userId: number,
-  ) {
-    return this.postService.create(dto, userId, files);
+  create(@Body() dto: CreatePostDto, @GetUser('sub') userId: number) {
+    return this.postService.create(dto, userId);
   }
 
-  @Get('/user/:uid')
-  findAllPostOfuser(@Param('uid', ParseIntPipe) userId: number) {
-    return this.postService.findAllPostOfUser(userId);
+  @Post(':id/upload/photos')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'mediaFile', maxCount: 5 }]))
+  uploadFiles(
+    @Param('id', ParseIntPipe) postId: number,
+    @UploadedFiles()
+    files: {
+      mediaFile: Express.Multer.File[];
+    },
+  ) {
+    return this.postService.uploadPhotos(postId, files);
+  }
+
+  @Get('/user/:uid/:pag')
+  findAllPostOfuser(
+    @Param('uid', ParseIntPipe) authorId: number,
+    @GetUser('sub') userId: number,
+    @Param('pag', ParseIntPipe) pagination: number,
+  ) {
+    return this.postService.findAllPostOfUser(authorId, userId, pagination);
+  }
+
+  @Get('/my/:pag')
+  getMyPost(
+    @GetUser('sub') userId: number,
+    @Param('pag', ParseIntPipe) pagination: number,
+  ) {
+    return this.postService.findAllPostOfUser(userId, userId, pagination);
   }
 
   @Get(':id')
@@ -46,9 +63,13 @@ export class PostController {
     return this.postService.findPost(id);
   }
 
-  @Get('/:id/comments')
-  postComments(@Param('id', ParseIntPipe) postId: number) {
-    return this.postService.postComments(postId);
+  @Get('/:id/comments/pag/:pag')
+  postComments(
+    @Param('id', ParseIntPipe) postId: number,
+    @Param('pag', ParseIntPipe) pagination: number,
+    @GetUser('sub') userId: number,
+  ) {
+    return this.postService.postComments({ postId, userId, pagination });
   }
 
   @Patch(':id/update')
@@ -70,7 +91,10 @@ export class PostController {
   }
 
   @Delete(':id/delete')
-  remove(@Param('id', ParseIntPipe) id: number, @GetUser('sub') userId: number) {
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser('sub') userId: number,
+  ) {
     return this.postService.remove(+id, userId);
   }
 }

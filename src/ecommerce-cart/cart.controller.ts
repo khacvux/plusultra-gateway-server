@@ -15,7 +15,7 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { AuthGuard } from 'src/auth/guard';
 
 @UseGuards(AuthGuard)
-@Controller('ec/cart')
+@Controller('api/ec/cart')
 export class EcommerceCartController {
   constructor(private readonly ecommerceCartService: EcommerceCartService) {}
 
@@ -30,11 +30,8 @@ export class EcommerceCartController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseIntPipe) id: number,
-    @GetUser('sub') userId: number,
-  ) {
-    return this.ecommerceCartService.findOne(id, userId);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.ecommerceCartService.findOne(id);
   }
 
   @Patch(':id')

@@ -25,7 +25,7 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 import { AuthGuard } from '../auth/guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
-@Controller('ec/product')
+@Controller('api/ec/product')
 export class EcommerceProductsController {
   constructor(private readonly ecService: EcommerceProductsService) {}
 
